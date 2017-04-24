@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+# vim: ft=jinja
+
+{% import_yaml 'yumsync/defaults.yaml' as default_settings %}
+
+{% set os_family_map = salt['grains.filter_by']({
+        'Debian': {
+            "sysconfdir" : '/etc/default',
+        },
+        'RedHat': {
+            "sysconfdir": '/etc/sysconfig',
+        },
+  }
+  , grain="os_family"
+  , merge=salt['pillar.get']('yumsync:lookup'))
+%}
+{% do default_settings.yumsync.update(os_family_map) %}
+
+{% set yumsync = salt['pillar.get'](
+        'yumsync',
+        default=default_settings.yumsync,
+        merge=True
+    )
+%}

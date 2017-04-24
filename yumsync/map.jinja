@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+
+{%- load_yaml as yumsync_os_family %}
+
+
+#base dictionary (defaults for all os's, will be merged with and overridden by os_family pillars)
+base:
+  #dictinary from defaults.yaml gets here
+  pkgs:
+    - yumsync
+  service:
+    name: yumsync
+    state: running
+    enable: True
+  conffile: '/etc/yumsync/yumsync.ini'
+
+  # default settings
+  conf:
+    'without_section_pre':
+      opt-without-section-at-beginning-of-file: 'enabled'
+    '[sect1]':
+      opt1: value1
+    '[sect2]':
+      opt2: value2
+    'without_section_post':
+      opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
+
+  defaultkey_for_all_oses: frombase
+  keys:
+    - base1
+    - base2
+  base: "yes"
+
+
+#nondebian / nonredhat (overrides base, is taken when os_family grain is not in available os's)
+default:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - default1
+    - default2
+  default: "yes"
+
+#debian (overrides base, is taken when os_family grain is Debian)
+Debian:
+  sysconfdir: /etc/default
+  keys:
+    - yumsync_os_familydeb1
+    - yumsync_os_familydeb2
+  yumsync_os_familydeb: "yes"
+
+
+#redhat (overrides base, is taken when os_family grain is RedHat)
+RedHat:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - yumsync_os_familyrh1
+    - yumsync_os_familyrh2
+  yumsync_os_familyrh: "yes"
+
+
+{%- endload %}
+
+
+#create yumsync_default_plus_pillar_lookup where 
+# - base is defaults for all os's
+# - base is merged with and overridden by os_family settings (default if os_family could not be found in dict) 
+# - resulting dict is merged with 'yumsync:lookup' - pillar (pillar overrides)
+{%- set yumsync_default_plus_pillar_lookup = salt['grains.filter_by'](yumsync_os_family, grain='os_family', merge=salt['pillar.get']('yumsync:lookup'), default='default', base='base') %}
+
+
+# now yumsync_default_plus_pillar_lookup is merged with 'yumsync'-pillar ('yumsync'-pillar overrides yumsync_default_plus_pillar_lookup
+{%- set yumsync = salt['pillar.get']('yumsync', default=yumsync_default_plus_pillar_lookup, merge=True) %}
