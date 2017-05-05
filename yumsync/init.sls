@@ -4,17 +4,17 @@
 include:
   - yumsync.install
   - yumsync.config
-  - yumsync.service
+  #- yumsync.cron
 
 extend:
   yumsync_config__conffile:
     file:
       - require:
         - pkg: yumsync_install__pkg
-  yumsync_service__service:
-    service:
-      - watch:
-        - file: yumsync_config__conffile
-      - require:
-        - pkg: yumsync_install__pkg
+  #yumsync_cron__cron:
+  #  cron:
+  #    - watch:
+  #      - file: yumsync_config__conffile
+  #    - require:
+  #      - pkg: yumsync_install__pkg
 

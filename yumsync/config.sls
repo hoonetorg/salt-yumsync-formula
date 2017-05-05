@@ -5,11 +5,11 @@
 
 yumsync_config__conffile:
   file.managed:
-    - name: {{ yumsync.conffile }}
-    - source: salt://yumsync/files/configtempl.jinja
-    - template: jinja
-    - context:
-      confdict: {{yumsync|json}}
+    - name: {{ yumsync.reposdir }}/{{ yumsync.conffile }}
+{% if salt['pillar.get']('yumsync:repos')|default(False) %}
+    - contents_pillar: yumsync:repos
+{% endif %}
+    - makedirs: True
     - mode: 644
     - user: root
     - group: root
