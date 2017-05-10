@@ -3,13 +3,17 @@
 
 {% from "yumsync/map.jinja" import yumsync with context %}
 
-yumsync_config__conffile:
-  file.managed:
-    - name: {{ yumsync.reposdir }}/{{ yumsync.conffile }}
-{% if salt['pillar.get']('yumsync:repos')|default(False) %}
-    - contents_pillar: yumsync:repos
-{% endif %}
-    - makedirs: True
-    - mode: 644
+yumsync__file_confdir:
+  file.recurse:
+    - name: {{yumsync.confdir}}
+    #- exclude_pat: E@hosts/.*/install/.*conf
+    - clean: True
+    - include_empty: True
+    - force_symlinks: True
+    - keep_symlinks: True
     - user: root
     - group: root
+    - dir_mode: '0775'
+    - file_mode: '0644'
+    - template: jinja
+    - source: salt://yumsync/files/config

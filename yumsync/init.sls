@@ -7,7 +7,7 @@ include:
   #- yumsync.cron
 
 extend:
-  yumsync_config__conffile:
+  yumsync__file_confdir:
     file:
       - require:
         - pkg: yumsync_install__pkg
