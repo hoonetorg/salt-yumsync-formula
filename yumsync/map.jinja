@@ -5,11 +5,10 @@
 base:
   pkgs:
     - yumsync
-  cron:
-    name: yumsync
   reposdir: '/srv/export/repo'
   confdir: '/etc/yumsync'
-  #conffile: 'repos.yml'
+  cronscriptdir: /usr/local/sbin
+  cronscript: yumsyncscript
 
 default:
   sysconfdir: /etc/sysconfig

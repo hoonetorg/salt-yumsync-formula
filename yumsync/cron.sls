@@ -2,11 +2,31 @@
 # vim: ft=sls
 
 {% from "yumsync/map.jinja" import yumsync with context %}
-#FIXME: for repo in /etc/yumsync/*.yml; do yumsync --stable -c $repo -o /srv/export/repo/ ; done
-yumsync_cron__cron:
-  cron.{{ yumsync.cron.state }}:
-    - name: {{ yumsync.cron.name }}
-{% if yumsync.cron.state in [ 'running', 'dead' ] %}
-    - enable: {{ yumsync.cron.enable }}
-{% endif %}
 
+yumsync_cron__cronscript:
+  file.managed:
+    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}}
+    - source: salt://yumsync/files/yumsyncscript.jinja2
+    - user: root
+    - group: root
+    - mode: '0755'
+    - template: jinja
+    - makedirs: True
+
+yumsync_cron__cron_sync:
+  cron.present:
+    - identifier: cron_yumsync_sync
+    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}} --sync
+    - minute: 7
+    - hour: 2
+    - require:
+      - file: yumsync_cron__cronscript
+
+yumsync_cron__cron_set_stable:
+  cron.present:
+    - identifier: cron_yumsync_set_stable
+    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}}
+    - minute: 7
+    - hour: 6
+    - require:
+      - file: yumsync_cron__cronscript

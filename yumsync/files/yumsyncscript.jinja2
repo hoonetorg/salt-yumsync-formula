@@ -1,0 +1,64 @@
+{%- from "yumsync/map.jinja" import yumsync with context %}
+#!/bin/bash
+#
+# NOTE: This file is handled by salt, local changes will be overwritten
+#       Modify on installation/configuration server only!
+#
+
+export PATH="$PATH:/usr/local/bin:/usr/local/sbin"
+REPO_BASEPATH="{{yumsync.reposdir}}"
+YUMSYNCARGS="--stable $@"
+
+if [ -n "`echo $YUMSYNCARGS|grep -w -- '--sync'`" ]; then
+  SYNC="true"
+  YUMSYNCARGS="`echo $YUMSYNCARGS|sed 's/--sync//g'`"
+fi
+
+main(){
+  DATE_BEGIN="`date +%Y%m%d%H%M%S`"
+  echo
+  echo "`basename $0` run started at $DATE_BEGIN"
+
+  for REPOYML in {% for repo in yumsync.repos -%} {{yumsync.confdir}}/{{repo}}.yml {% endfor %};do 
+
+    REPO="`basename $REPOYML|sed 's/\.yml//g'`"
+    LOGDIR="{{ yumsync.reposdir }}/log_set_stable/${REPO}"
+    if [ "$SYNC" == "true" ]; then
+      LOGDIR="{{ yumsync.reposdir }}/log/${REPO}"
+    fi
+    LOGFILE="$LOGDIR/${REPO}_${DATE_BEGIN}.log"
+    LOGERR="$LOGDIR/${REPO}_${DATE_BEGIN}.err"
+
+    if [ "$SYNC" == "true" ]; then
+      echo "syncing repo $REPO"
+    else
+      echo "setting stable tag on repo $REPO"
+    fi
+    mkdir -p $LOGDIR
+    echo "command: yumsync -c $REPOYML -o {{ yumsync.reposdir }} $YUMSYNCARGS >$LOGFILE 2>$LOGERR"
+    yumsync -c $REPOYML -o {{ yumsync.reposdir }} $YUMSYNCARGS >$LOGFILE 2>$LOGERR
+  done
+
+  echo "`basename $0` run started at $DATE_BEGIN finished at `date +%Y%m%d%H%M%S`"
+}
+
+PIDFILE="/var/run/`basename $0`.pid"
+
+if [ -e "$PIDFILE" ]; then
+PID="`cat $PIDFILE`"
+  if kill -0 $PID >/dev/null 2>&1; then
+    echo "FAILURE: `basename $0` already running  - exiting"
+    exit 1
+  else
+    rm $PIDFILE
+  fi
+fi
+echo $$ > $PIDFILE
+
+MAINLOG="/var/log/`basename $0`--stable.log"
+if [ "$SYNC" == "true" ]; then
+  MAINLOG="/var/log/`basename $0`.log"
+fi
+
+main 1>> $MAINLOG 2>&1
+rm $PIDFILE
