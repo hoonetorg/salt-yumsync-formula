@@ -11,7 +11,7 @@ YUMSYNCARGS="--stable $@"
 
 if [ -n "`echo $YUMSYNCARGS|grep -w -- '--sync'`" ]; then
   SYNC="true"
-  YUMSYNCARGS="`echo $YUMSYNCARGS|sed 's/--sync//g'`"
+  YUMSYNCARGS="`echo $YUMSYNCARGS|sed 's/--stable//g;s/--sync//g'`"
 fi
 
 main(){
