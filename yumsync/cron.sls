@@ -16,7 +16,7 @@ yumsync_cron__cronscript:
 yumsync_cron__cron_sync:
   cron.present:
     - identifier: cron_yumsync_sync
-    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}} --sync
+    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}} --sync; rm -Rf /var/tmp/yum-root-*
     - minute: 7
     - hour: 2
     - require:
@@ -25,7 +25,7 @@ yumsync_cron__cron_sync:
 yumsync_cron__cron_set_stable:
   cron.present:
     - identifier: cron_yumsync_set_stable
-    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}}
+    - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscript}}; rm -Rf /var/tmp/yum-root-*
     - minute: 7
     - hour: 6
     - require:
