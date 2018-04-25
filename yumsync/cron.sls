@@ -47,7 +47,7 @@ yumsync_cron__cron_clean:
     - identifier: cron_yumsync_clean
     - name: {{yumsync.cronscriptdir}}/{{yumsync.cronscriptclean}}
     - minute: 7
-    - hour: 2
+    - hour: 7
     - require:
       - file: yumsync_cron__cronscriptclean
 

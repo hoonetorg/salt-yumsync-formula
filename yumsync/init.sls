@@ -5,6 +5,7 @@ include:
   - yumsync.install
   - yumsync.config
   - yumsync.cron
+  - yumsync.bootimagesync
 
 extend:
   yumsync_config__confdir:
