@@ -5,10 +5,12 @@
 base:
   pkgs:
     - yumsync
+    - jq
   reposdir: '/srv/export/repo'
   confdir: '/etc/yumsync'
   cronscriptdir: /usr/local/sbin
-  cronscript: yumsyncscript
+  cronscriptsync: yumsyncscript
+  cronscriptclean: yumsyncclean
 
 default:
   sysconfdir: /etc/sysconfig
