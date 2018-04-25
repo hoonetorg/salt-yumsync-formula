@@ -1,0 +1,58 @@
+{%- from "yumsync/map.jinja" import yumsync with context %}
+#!/bin/bash
+
+DEBUG=0
+REPOSDIR="{{yumsync.reposdir}}"
+CONFDIR="{{yumsync.confdir}}"
+CLEAN_BEFORE_YEAR="{{yumsync.clean_before.year}}"
+CLEAN_BEFORE_MONTH="{{yumsync.clean_before.month}}"
+CLEAN_BEFORE_DAY="{{yumsync.clean_before.day}}"
+
+debugecho(){
+  [ $DEBUG -gt 0 ] && echo $@
+}
+
+for REPOFILE in ${CONFDIR}/*; do
+  for REPO in `cat $REPOFILE |ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))'|jq 'keys | @sh' |perl -pe 's/"//g'|perl -pe "s/'//g"`; do 
+    REPO_DIR="${REPOSDIR}/public/${REPO}"
+    REPO_DIR_RAW="${REPOSDIR}/`echo $REPO|perl -pe 's;/;_;g'`"
+    if [ -d "${REPO_DIR_RAW}" ]; then
+      debugecho "REPO: \"$REPO\""
+      debugecho "REPO_DIR: \"$REPO_DIR\""
+      debugecho "REPO_DIR_RAW: \"$REPO_DIR_RAW\""
+      for YEARDIR in ${REPO_DIR_RAW}/[0-9][0-9][0-9][0-9]; do 
+        if [ -d "${YEARDIR}" ]; then
+          YEAR="`echo ${YEARDIR}|awk -F "/" '{print $NF}'`"
+          debugecho "YEAR: \"$YEAR\""
+          debugecho "YEARDIR: \"$YEARDIR\""
+          if [ ${YEAR} -lt ${CLEAN_BEFORE_YEAR} ]; then
+            echo rm -Rf ${YEARDIR}
+            rm -Rf ${YEARDIR}
+          elif [ ${YEAR} -eq ${CLEAN_BEFORE_YEAR} ]; then
+            for MONTHDIR in ${YEARDIR}/[0-9][0-9]; do 
+              MONTH="`echo ${MONTHDIR}|awk -F "/" '{print $NF}'`"
+              debugecho "MONTH: \"$MONTH\""
+              debugecho "MONTHDIR: \"$MONTHDIR\""
+              if [ ${YEAR} -eq ${CLEAN_BEFORE_YEAR} -a ${MONTH} -lt ${CLEAN_BEFORE_MONTH} ]; then
+                echo rm -Rf ${MONTHDIR}
+                rm -Rf ${MONTHDIR}
+              elif [ ${MONTH} -eq ${CLEAN_BEFORE_MONTH} ]; then
+                for DAYDIR in ${MONTHDIR}/[0-9][0-9]; do 
+                  DAY="`echo ${DAYDIR}|awk -F "/" '{print $NF}'`"
+                  debugecho "DAY: \"$DAY\""
+                  debugecho "DAYDIR: \"$DAYDIR\""
+                  if [ ${DAY} -lt ${CLEAN_BEFORE_DAY} ]; then
+                    echo rm -Rf ${DAYDIR}
+                    rm -Rf ${DAYDIR}
+                  fi
+                done
+              fi
+            done
+          fi
+        fi
+      done
+      debugecho
+    fi
+  done
+done
+
