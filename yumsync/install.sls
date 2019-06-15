@@ -5,4 +5,4 @@
 
 yumsync_install__pkg:
   pkg.installed:
-    - pkgs: {{ yumsync.pkgs }}
+    - pkgs: {{ yumsync.pkgs | tojson }}

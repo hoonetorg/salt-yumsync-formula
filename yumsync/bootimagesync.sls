@@ -3,7 +3,7 @@
 
 yumsync_bootimagesync__pkgbootimagesync:
   pkg.installed:
-    - pkgs: {{yumsync.pkgsbootimagesync}}
+    - pkgs: {{yumsync.pkgsbootimagesync | tojson}}
 
 yumsync_bootimagesync__confdirbootimagesync:
   file.recurse:
