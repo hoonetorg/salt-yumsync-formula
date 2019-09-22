@@ -1,13 +1,13 @@
 # vim: sts=2 ts=2 sw=2 et ai
 {% from "yumsync/map.jinja" import yumsync with context %}
 
-yumsync_bootimagesync__pkgbootimagesync:
+yumsync_bootimagesync__bootimagesync_pkgs:
   pkg.installed:
-    - pkgs: {{yumsync.pkgsbootimagesync | tojson}}
+    - pkgs: {{yumsync.bootimagesync.pkgs | tojson}}
 
-yumsync_bootimagesync__confdirbootimagesync:
+yumsync_bootimagesync__bootimagesync_confdir:
   file.recurse:
-    - name: {{yumsync.confdirbootimagesync}}
+    - name: {{yumsync.bootimagesync.confdir}}
     - clean: True
     - include_empty: True
     - force_symlinks: True
@@ -20,14 +20,17 @@ yumsync_bootimagesync__confdirbootimagesync:
     - template: jinja
     - source: salt://yumsync/files/configbootimagesync
     - require:
-      - pkg: yumsync_bootimagesync__pkgbootimagesync
+      - pkg: yumsync_bootimagesync__bootimagesync_pkgs
 
 yumsync_bootimagesync__cronbootimagesynclinks:
   cron.present:
     - identifier: cron_cronbootimagesynclinks
     - name: /bin/bootimagesync-links -v
-    - minute: 7
-    - hour: 7
+    - minute: '{{ yumsync.bootimagesync.cron.minute }}'
+    - hour: '{{ yumsync.bootimagesync.cron.hour }}'
+    - daymonth: '{{ yumsync.bootimagesync.cron.daymonth }}'
+    - month: '{{ yumsync.bootimagesync.cron.month }}'
+    - dayweek: '{{ yumsync.bootimagesync.cron.dayweek }}'
     - require:
-      - pkg: yumsync_bootimagesync__pkgbootimagesync
-      - file: yumsync_bootimagesync__confdirbootimagesync
+      - pkg: yumsync_bootimagesync__bootimagesync_pkgs
+      - file: yumsync_bootimagesync__bootimagesync_confdir

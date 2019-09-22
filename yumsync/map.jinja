@@ -9,13 +9,39 @@ base:
     - jq
   reposdir: '/srv/export/repo'
   confdir: '/etc/yumsync'
-  cronscriptdir: /usr/local/sbin
-  cronscriptsync: yumsyncscript
-  cronscriptclean: yumsyncclean
+  cron:
+    scriptdir: /usr/local/sbin
+    sync: 
+      script: yumsyncscript
+      minute: '7'
+      hour: '2'
+      daymonth: '*'
+      month: '*'
+      dayweek: 'sun'
+    set_stable:
+      minute: '7'
+      hour: '6'
+      daymonth: '*'
+      month: '*'
+      dayweek: 'sun'
+    clean:
+      script: yumsyncclean
+      minute: '7'
+      hour: '7'
+      daymonth: '*'
+      month: '*'
+      dayweek: 'sun'
 
-  pkgsbootimagesync:
-    - bootimagesync
-  confdirbootimagesync: '/etc/bootimagesync'
+  bootimagesync:
+    pkgs:
+      - bootimagesync
+    confdir: '/etc/bootimagesync'
+    cron:
+      minute: '7'
+      hour: '7'
+      daymonth: '*'
+      month: '*'
+      dayweek: 'sun'
 
 default:
   sysconfdir: /etc/sysconfig

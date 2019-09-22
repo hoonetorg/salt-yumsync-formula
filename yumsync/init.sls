@@ -12,7 +12,7 @@ extend:
     file:
       - require:
         - pkg: yumsync_install__pkg
-  yumsync_cron__cronscriptsync:
+  yumsync_cron__cron_sync_script:
     file:
       - require:
         - pkg: yumsync_install__pkg
